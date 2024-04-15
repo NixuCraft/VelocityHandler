@@ -16,6 +16,7 @@ import com.google.common.io.ByteStreams;
 
 import lombok.Getter;
 import me.nixuge.velocityhandler.callback.IPacketCallback;
+import me.nixuge.velocityhandler.messages.Pong;
 
 public class VelocityHandler implements PluginMessageListener {
     private final List<String> callbackPacketNames;
@@ -65,6 +66,7 @@ public class VelocityHandler implements PluginMessageListener {
 
         plugin.getServer().getMessenger().registerOutgoingPluginChannel(plugin, channel);
         plugin.getServer().getMessenger().registerIncomingPluginChannel(plugin, channel, this);
+        plugin.getServer().getMessenger().registerIncomingPluginChannel(plugin, "global", this); // Messages for every server.
     }
 
     @Override
@@ -106,7 +108,13 @@ public class VelocityHandler implements PluginMessageListener {
     }
 
     private void processNormal(String packetName, Player p, ByteArrayDataInput in) {
-        // As of now, we don't have any packet using this.
-        throw new RuntimeException("processNormal - not yet implemented");
+        switch (packetName) {
+            case "Ping":
+                new Pong().sendMessage();
+                break;
+            default:
+                logger.warning("Packet name not found in processNormal: " + packetName);
+                break;
+        }
     }
 }
